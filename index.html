@@ -1,1 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hitung Pendapatan Bersih</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Hitung Pendapatan Bersih</h2>
+    <div class="form-group">
+      <label for="pendapatanKotor">Pendapatan Kotor:</label>
+      <input type="text" id="pendapatanKotor">
+    </div>
+    <div class="form-group">
+      <label for="konsumsiBBM">Konsumsi BBM (liter/km):</label>
+      <input type="number" id="konsumsiBBM">
+    </div>
+    <div class="form-group">
+      <label for="jarakTempuh">Jarak Tempuh (km):</label>
+      <input type="number" id="jarakTempuh">
+    </div>
+    <div class="form-group">
+      <label for="pengeluaranLainnya">Pengeluaran Lainnya:</label>
+      <input type="text" id="pengeluaranLainnya">
+    </div>
+    <button onclick="hitungPendapatanBersih()">Hitung</button>
+    <div id="wrapper">
+      <div id="hasil" class="hasil">
+        <div class="result-item" id="tanggalResult">
+          <span>Tanggal:</span><span id="tanggalNominal"></span>
+        </div>
+        <div class="result-item" id="pendapatanKotorResult">
+          <span>Pendapatan Kotor:</span><span id="pendapatanKotorNominal"></span>
+        </div>
+        <div class="result-item" id="biayaBensinResult">
+          <span>Biaya Bensin:</span><span id="biayaBensinNominal"></span>
+        </div>
+        <div class="result-item" id="pengeluaranLainnyaResult">
+          <span>Pengeluaran Lainnya:</span><span id="pengeluaranLainnyaNominal"></span>
+        </div>
+        <div class="result-item" id="pendapatanBersihResult">
+          <span>Pendapatan Bersih:</span><span id="pendapatanBersihNominal"></span>
+        </div>
+      </div>
+    </div>
+    <button id="copyAllBtn" onclick="copyAllText()">Salin</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+<style>
+body {
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.container {
+  width: 350px;
+  padding: 20px;
+  background-color: #1e1e1e;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.container h2 {
+  margin-bottom: 20px;
+  color: #e0e0e0;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #b0b0b0;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #444;
+  background-color: #333;
+  color: #e0e0e0;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.hasil {
+  margin-top: 20px;
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 5px 0;
+}
+
+#tanggalNominal {
+  font-size: 18px;
+}
+
+#pendapatanBersihResult {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 16px;
+}
+
+#pendapatanBersihNominal {
+  color: #b0b0b0;
+}
+
+.result-item span {
+  display: inline-block;
+}
+
+#copyAllBtn {
+  display: none;
+}
+</style>
+
+<script>
+function formatRupiah(angka, prefix) {
+  var number_string = angka.replace(/[^,\d]/g, '').toString(),
+      split = number_string.split(','),
+      sisa = split[0].length % 3,
+      rupiah = split[0].substr(0, sisa),
+      ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+  if (ribuan) {
+    separator = sisa ? '.' : '';
+    rupiah += separator + ribuan.join('.');
+  }
+
+  rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+  return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+}
+
+function formatInput(element) {
+  var value = element.value.replace(/[^,\d]/g, '').toString();
+  element.value = formatRupiah(value, 'Rp. ');
+}
+
+document.getElementById('pendapatanKotor').addEventListener('input', function(e) {
+  formatInput(e.target);
+});
+
+document.getElementById('pengeluaranLainnya').addEventListener('input', function(e) {
+  formatInput(e.target);
+});
+
+function getCurrentDate() {
+    var now = new Date();
+    var options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return now.toLocaleDateString('id-ID', options);
+}
+
+function hitungPendapatanBersih() {
+    var pendapatanKotor = parseFloat(document.getElementById('pendapatanKotor').value.replace(/[^,\d]/g, ''));
+    var konsumsiBBM = parseFloat(document.getElementById('konsumsiBBM').value);
+    var jarakTempuh = parseFloat(document.getElementById('jarakTempuh').value);
+    var pengeluaranLainnya = parseFloat(document.getElementById('pengeluaranLainnya').value.replace(/[^,\d]/g, ''));
+    var jenisBensinHarga = 10000; // Harga per liter pertalite
+    
+    var biayaBensin = Math.round((jarakTempuh / konsumsiBBM) * jenisBensinHarga);
+    var pendapatanBersih = pendapatanKotor - biayaBensin - pengeluaranLainnya;
+
+    var currentDate = getCurrentDate();
+
+    document.getElementById('pendapatanKotorNominal').innerHTML = formatRupiah(pendapatanKotor.toString(), 'Rp. ');
+    document.getElementById('biayaBensinNominal').innerHTML = formatRupiah(biayaBensin.toString(), 'Rp. ');
+    document.getElementById('pengeluaranLainnyaNominal').innerHTML = formatRupiah(pengeluaranLainnya.toString(), 'Rp. ');
+    document.getElementById('pendapatanBersihNominal').innerHTML = formatRupiah(pendapatanBersih.toString(), 'Rp. ');
+    document.getElementById('tanggalNominal').innerHTML = currentDate;
+
+    document.getElementById('copyAllBtn').style.display = 'block';
+}
+
+function copyAllText() {
+    var tanggal = document.getElementById('tanggalNominal').innerText;
+    var pendapatanKotor = document.getElementById('pendapatanKotorNominal').innerText;
+    var biayaBensin = document.getElementById('biayaBensinNominal').innerText;
+    var pengeluaranLainnya = document.getElementById('pengeluaranLainnyaNominal').innerText;
+    var pendapatanBersih = document.getElementById('pendapatanBersihNominal').innerText;
+
+    var combinedText = `Tanggal: ${tanggal}\nPendapatan Kotor: ${pendapatanKotor}\nBiaya Bensin: ${biayaBensin}\nPengeluaran Lainnya: ${pengeluaranLainnya}\nPendapatan Bersih: ${pendapatanBersih}`;
+
+    var textarea = document.createElement('textarea');
+    textarea.value = combinedText;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('Text copied to clipboard:\n' + combinedText);
+}
+</script>
 
